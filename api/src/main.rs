@@ -17,12 +17,11 @@ extern crate serde_json;
 
 use dotenv::dotenv;
 use std::env;
-use diesel::prelude::*;
-use diesel::pg::PgConnection;
 
 mod db;
-mod schema;
 mod models;
+mod routes;
+mod schema;
 mod static_files;
 
 fn rocket() -> rocket::Rocket {
@@ -33,7 +32,10 @@ fn rocket() -> rocket::Rocket {
 	let pool = db::init_pool(database_url);
 	rocket::ignite()
 		.manage(pool)
+		.mount("/api/v1/", 
+			routes![routes::index, routes::new, routes::show, routes::delete, routes::author, routes::update])
 		.mount("/", routes![static_files::all, static_files::index])
+		//.catch(catchers![routes::not_found])
 }
 
 fn main() {
